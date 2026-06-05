@@ -137,28 +137,27 @@ const handleLogin = async () => {
 
   isLoading.value = true;
   try {
-    const success = await authStore.login(email.value, password.value);
+    await authStore.login(email.value, password.value);
 
-    if (success) {
-      toast.success('Acceso autorizado', {
-        description: `Bienvenido al sistema FuelTrack.`
-      });
+    toast.success('Acceso autorizado', {
+      description: `Bienvenido al sistema FuelTrack.`
+    });
 
-      // Redirección lógica basada en el rol del usuario
-      if (authStore.userRole === 'REQUESTER') {
-        router.push('/client/dashboard');
-      } else {
-        router.push('/provider/dashboard');
-      }
+    if (authStore.userRole === 'REQUESTER') {
+      router.push('/client/dashboard');
     } else {
+      router.push('/provider/dashboard');
+    }
+  } catch (error) {
+    if (error.status === 401 || error.status === 400) {
       toast.error('Credenciales incorrectas', {
         description: 'El correo o la contraseña no coinciden con nuestros registros.'
       });
+    } else {
+      toast.error('Error del sistema', {
+        description: 'No se pudo conectar con el servidor de autenticación.'
+      });
     }
-  } catch (error) {
-    toast.error('Error del sistema', {
-      description: 'No se pudo conectar con el servidor de autenticación.'
-    });
   } finally {
     isLoading.value = false;
   }

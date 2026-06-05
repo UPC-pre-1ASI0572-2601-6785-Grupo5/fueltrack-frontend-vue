@@ -1,36 +1,39 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
+import { http } from '@/core/api/http.js'
 
 export const useAuthStore = defineStore('auth', () => {
-    // Estado
-    const user = ref(null)
+    const user = ref(JSON.parse(localStorage.getItem('user') || 'null'))
+    const token = ref(localStorage.getItem('token') || null)
 
-    // Getters
-    const isAuthenticated = computed(() => user.value !== null)
+    const isAuthenticated = computed(() => user.value !== null && token.value !== null)
     const userRole = computed(() => user.value?.role || null)
 
-    // Acciones (Casos de uso simplificados)
-    const login = async (email, password) => {
-        // Simulamos un retraso de red (llamada a la API)
-        return new Promise((resolve) => {
-            setTimeout(() => {
-                // Lógica de prueba: si el correo tiene la palabra 'proveedor', le damos el rol de proveedor.
-                const role = email.includes('proveedor') ? 'PROVIDER' : 'REQUESTER'
+    const _saveSession = (data) => {
+        token.value = data.token
+        user.value = { id: data.id, email: data.email, name: data.name, role: data.role }
+        localStorage.setItem('token', data.token)
+        localStorage.setItem('user', JSON.stringify(user.value))
+    }
 
-                user.value = {
-                    id: 'usr-123',
-                    email: email,
-                    name: role === 'REQUESTER' ? 'Empresa Minera S.A.' : 'Distribuidora de Combustible SAC',
-                    role: role
-                }
-                resolve(user.value)
-            }, 800)
-        })
+    const login = async (email, password) => {
+        const data = await http.post('/api/v1/authentication/sign-in', { email, password })
+        _saveSession(data)
+        return user.value
+    }
+
+    const register = async (email, password, fullName, role) => {
+        const data = await http.post('/api/v1/authentication/sign-up', { email, password, fullName, role })
+        _saveSession(data)
+        return user.value
     }
 
     const logout = () => {
         user.value = null
+        token.value = null
+        localStorage.removeItem('token')
+        localStorage.removeItem('user')
     }
 
-    return { user, isAuthenticated, userRole, login, logout }
+    return { user, token, isAuthenticated, userRole, login, register, logout }
 })

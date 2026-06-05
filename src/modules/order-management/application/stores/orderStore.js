@@ -2,8 +2,8 @@ import { defineStore } from 'pinia';
 import { ref } from 'vue';
 import { MockOrderRepository } from '../../infrastructure/api/MockOrderRepository.js';
 import { Order } from '../../domain/entities/Order.js';
+import { http } from '@/core/api/http.js';
 
-// 🚀 IMPORTANTE: Importamos el store de notificaciones
 import { useNotificationStore } from './notificationStore.js';
 import { useInventoryStore } from './inventoryStore';
 const repository = new MockOrderRepository();
@@ -25,24 +25,28 @@ export const useOrderStore = defineStore('orders', () => {
     // 1. CUANDO SE CREA UN PEDIDO
     const createNewOrder = async (orderData) => {
         isSaving.value = true;
-        // Instanciamos el store de notificaciones dentro de la acción
         const notifStore = useNotificationStore();
 
         try {
-            const newOrder = new Order({
-                id: `ORD-00${Math.floor(Math.random() * 900) + 100}`,
+            const order = new Order({
+                id: null,
                 fuelType: orderData.fuelType,
                 gallons: orderData.gallons,
                 documentRef: orderData.documentRef
             });
 
-            await repository.save(newOrder);
-            orders.value.unshift(newOrder);
+            const response = await http.post('/api/v1/orders', {
+                fuelType: order.fuelType,
+                gallons: Number(order.gallons),
+                documentRef: order.documentRef,
+            });
 
-            // 🚀 DISPARAMOS LA NOTIFICACIÓN REAL
+            order.id = response.id;
+            orders.value.unshift(order);
+
             notifStore.addNotification(
                 'Orden Emitida con Éxito',
-                `El pedido ${newOrder.id} por ${newOrder.gallons} galones de ${newOrder.fuelType} ha sido registrado en el sistema.`,
+                `El pedido #${order.id} por ${order.gallons} galones de ${order.fuelType} ha sido registrado en el sistema.`,
                 'success'
             );
 
