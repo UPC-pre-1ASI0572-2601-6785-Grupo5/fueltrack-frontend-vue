@@ -207,7 +207,7 @@ const goToCreateOrder = (isExpress = false) => {
 const filteredOrders = computed(() => {
   return orderStore.orders.filter(order => {
     const query = searchQuery.value.toLowerCase();
-    const matchesSearch = order.id.toLowerCase().includes(query) || (order.documentRef && order.documentRef.toLowerCase().includes(query));
+    const matchesSearch = String(order.id).toLowerCase().includes(query) || (order.documentRef && order.documentRef.toLowerCase().includes(query));
     const matchesStatus = statusFilter.value === 'ALL' || order.status === statusFilter.value;
     return matchesSearch && matchesStatus;
   });
