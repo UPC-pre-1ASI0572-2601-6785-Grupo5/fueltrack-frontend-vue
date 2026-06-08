@@ -208,7 +208,7 @@ const formData = ref({
 const fuelOptions = [
   { id: 1, name: 'Diesel B5 S-50', desc: 'Bajo azufre (Norma Minera)', price: 16.45, color: '#2563eb', bg: '#eff6ff' },
   { id: 2, name: 'Gasohol 95 Plus', desc: 'Vehículos de supervisión', price: 18.20, color: '#10b981', bg: '#ecfdf5' },
-  { id: 3, name: 'Diésel Marino', desc: 'Generadores estacionarios', price: 15.90, color: '#f59e0b', bg: '#fffbeb' }
+  { id: 3, name: 'Gasohol 98', desc: 'Generadores estacionarios', price: 15.90, color: '#f59e0b', bg: '#fffbeb' }
 ];
 
 const currentPrice = ref(fuelOptions[0].price);

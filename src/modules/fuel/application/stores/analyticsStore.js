@@ -16,7 +16,7 @@ export const useAnalyticsStore = defineStore('analyticsStore', () => {
     const budgetLimit = 500000;
 
     const consumptionByFuelType = computed(() => {
-        const types = ['Diesel B5 S-50', 'Gasohol 95 Plus', 'Diésel Marino'];
+        const types = ['Diesel B5 S-50', 'Gasohol 95 Plus', 'Gasohol 98'];
         return types.map(type =>
             orderStore.orders
                 .filter(o => o.fuelType === type)

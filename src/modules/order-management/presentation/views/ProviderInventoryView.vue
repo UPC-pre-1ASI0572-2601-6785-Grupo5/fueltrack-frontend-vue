@@ -92,7 +92,7 @@
               <select v-model="refillData.type" class="form-input">
                 <option value="Diesel B5 S-50">Tanque 01 - Diesel B5 S-50</option>
                 <option value="Gasohol 95 Plus">Tanque 02 - Gasohol 95 Plus</option>
-                <option value="Diésel Marino">Tanque 03 - Diésel Marino</option>
+                <option value="Gasohol 98">Tanque 03 - Gasohol 98</option>
               </select>
             </div>
 
@@ -144,7 +144,7 @@ const getTelemetryData = (fuelType) => {
   const data = {
     'Diesel B5 S-50':  { temp: 18.5, density: 35.2 },
     'Gasohol 95 Plus': { temp: 21.0, density: 55.4 },
-    'Diésel Marino':   { temp: 20.5, density: 58.1 }
+    'Gasohol 98':   { temp: 20.5, density: 58.1 }
   };
   return data[fuelType] || { temp: 20.0, density: 50.0 };
 };

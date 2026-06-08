@@ -31,7 +31,7 @@
                 <option value="" disabled>Seleccione el tipo de combustible</option>
                 <option value="Diesel B5 S-50">Diesel B5 S-50 (Bajo azufre)</option>
                 <option value="Gasohol 95 Plus">Gasohol 95 Plus</option>
-                <option value="Diésel Marino">Diésel Marino</option>
+                <option value="Gasohol 98">Gasohol 98</option>
               </select>
             </div>
           </div>

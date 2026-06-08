@@ -295,7 +295,7 @@ const mixOption = computed(() => ({
     data: [
       { value: analyticsStore.consumptionByFuelType[0], name: 'Diesel B5 S-50' },
       { value: analyticsStore.consumptionByFuelType[1], name: 'Gasohol 95 Plus' },
-      { value: analyticsStore.consumptionByFuelType[2], name: 'Diésel Marino' }
+      { value: analyticsStore.consumptionByFuelType[2], name: 'Gasohol 98' }
     ]
   }]
 }));
