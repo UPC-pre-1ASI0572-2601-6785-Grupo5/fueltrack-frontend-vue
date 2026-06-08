@@ -17,12 +17,12 @@ export const useAnalyticsStore = defineStore('analytics', () => {
 
     // Métrica 3: Datos para el gráfico de barras (Consumo por tipo de combustible)
     const consumptionByFuelType = computed(() => {
-        const types = ['Diesel B5', 'Gasohol 95', 'Gasohol 98'];
-        return types.map(type => {
-            return orderStore.orders
+        const types = ['Diesel B5 S-50', 'Gasohol 95 Plus', 'Diésel Marino'];
+        return types.map(type =>
+            orderStore.orders
                 .filter(o => o.fuelType === type)
-                .reduce((acc, o) => acc + o.gallons, 0);
-        });
+                .reduce((acc, o) => acc + o.gallons, 0)
+        );
     });
 
     return { totalGallons, totalSpend, consumptionByFuelType };

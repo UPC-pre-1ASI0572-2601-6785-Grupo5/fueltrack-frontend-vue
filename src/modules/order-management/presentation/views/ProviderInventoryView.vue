@@ -11,15 +11,15 @@
     </div>
 
     <div class="tanks-grid">
-      <div v-for="(stock, type) in inventoryStore.stocks" :key="type" class="tank-card">
+      <div v-for="stock in inventoryStore.stocks" :key="stock.fuelType" class="tank-card">
 
         <div class="tank-header">
           <div class="tank-title-group">
-            <h4>{{ type }}</h4>
+            <h4>{{ stock.fuelType }}</h4>
             <span class="sensor-status"><CheckCircle2Icon :size="12" /> Sensores OK</span>
           </div>
-          <span :class="['status-tag', getLevelClass(type)]">
-            {{ getPercentage(type).toFixed(0) }}%
+          <span :class="['status-tag', getLevelClass(stock.fuelType)]">
+            {{ inventoryStore.getPercentage(stock.fuelType).toFixed(0) }}%
           </span>
         </div>
 
@@ -27,8 +27,8 @@
           <div class="tank-glass">
             <div
                 class="tank-liquid"
-                :class="getLevelClass(type)"
-                :style="{ height: getPercentage(type) + '%' }"
+                :class="getLevelClass(stock.fuelType)"
+                :style="{ height: inventoryStore.getPercentage(stock.fuelType) + '%' }"
             >
               <div class="liquid-surface"></div>
             </div>
@@ -41,7 +41,7 @@
           </div>
         </div>
 
-        <div class="inbound-alert" v-if="getPercentage(type) < 40">
+        <div class="inbound-alert" v-if="inventoryStore.getPercentage(stock.fuelType) < 40">
           <TruckIcon :size="14" />
           <span>En tránsito: 10,000 gal (Repsol Pampilla)</span>
         </div>
@@ -49,11 +49,11 @@
         <div class="tank-stats">
           <div class="stat">
             <span class="label">Volumen Disponible</span>
-            <span class="value">{{ stock.toLocaleString() }} <small>gal</small></span>
+            <span class="value">{{ stock.currentGallons.toLocaleString() }} <small>gal</small></span>
           </div>
           <div class="stat">
             <span class="label">Capacidad Libre</span>
-            <span class="value text-muted">{{ (inventoryStore.MAX_CAPACITY - stock).toLocaleString() }} gal</span>
+            <span class="value text-muted">{{ (stock.maxCapacityGallons - stock.currentGallons).toLocaleString() }} gal</span>
           </div>
         </div>
 
@@ -62,14 +62,14 @@
             <ThermometerIcon :size="14" class="text-muted" />
             <div class="telemetry-data">
               <span class="label">Temp. Interna</span>
-              <span class="value">{{ getTelemetryData(type).temp }}°C</span>
+              <span class="value">{{ getTelemetryData(stock.fuelType).temp }}°C</span>
             </div>
           </div>
           <div class="telemetry-item">
             <GaugeIcon :size="14" class="text-muted" />
             <div class="telemetry-data">
               <span class="label">Presión / Densidad</span>
-              <span class="value">{{ getTelemetryData(type).density }} API</span>
+              <span class="value">{{ getTelemetryData(stock.fuelType).density }} API</span>
             </div>
           </div>
         </div>
@@ -90,9 +90,9 @@
             <div class="form-group">
               <label>Tanque de Destino</label>
               <select v-model="refillData.type" class="form-input">
-                <option value="Diesel B5">Tanque 01 - Diesel B5</option>
-                <option value="Gasohol 95">Tanque 02 - Gasohol 95</option>
-                <option value="Gasohol 98">Tanque 03 - Gasohol 98</option>
+                <option value="Diesel B5 S-50">Tanque 01 - Diesel B5 S-50</option>
+                <option value="Gasohol 95 Plus">Tanque 02 - Gasohol 95 Plus</option>
+                <option value="Diésel Marino">Tanque 03 - Diésel Marino</option>
               </select>
             </div>
 
@@ -119,7 +119,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useInventoryStore } from '../../application/stores/inventoryStore.js';
 import { useNotificationStore } from '../../../order-management/application/stores/notificationStore.js';
 import { toast } from 'vue-sonner';
@@ -131,31 +131,26 @@ import {
 const inventoryStore = useInventoryStore();
 const notificationStore = useNotificationStore();
 
-// --- Lógica del Tanque ---
-const getPercentage = (type) => {
-  return (inventoryStore.stocks[type] / inventoryStore.MAX_CAPACITY) * 100;
-};
+onMounted(() => inventoryStore.fetchStocks());
 
-const getLevelClass = (type) => {
-  const p = getPercentage(type);
+const getLevelClass = (fuelType) => {
+  const p = inventoryStore.getPercentage(fuelType);
   if (p < 20) return 'critical';
   if (p < 50) return 'warning';
   return 'optimal';
 };
 
-// Datos estáticos realistas para la telemetría por tipo de combustible
-const getTelemetryData = (type) => {
+const getTelemetryData = (fuelType) => {
   const data = {
-    'Diesel B5': { temp: 18.5, density: 35.2 },
-    'Gasohol 95': { temp: 21.0, density: 55.4 },
-    'Gasohol 98': { temp: 20.5, density: 58.1 }
+    'Diesel B5 S-50':  { temp: 18.5, density: 35.2 },
+    'Gasohol 95 Plus': { temp: 21.0, density: 55.4 },
+    'Diésel Marino':   { temp: 20.5, density: 58.1 }
   };
-  return data[type] || { temp: 20, density: 50 };
+  return data[fuelType] || { temp: 20.0, density: 50.0 };
 };
 
-// --- Lógica del Modal de Recarga ---
 const showRefillModal = ref(false);
-const refillData = ref({ type: 'Diesel B5', amount: '' });
+const refillData = ref({ type: 'Diesel B5 S-50', amount: '' });
 
 const openRefillModal = () => showRefillModal.value = true;
 const closeRefillModal = () => {
@@ -163,26 +158,23 @@ const closeRefillModal = () => {
   refillData.value.amount = '';
 };
 
-// Validaciones en vivo del modal
 const freeCapacity = computed(() => {
-  const currentStock = inventoryStore.stocks[refillData.value.type];
-  return inventoryStore.MAX_CAPACITY - currentStock;
+  const s = inventoryStore.getStock(refillData.value.type);
+  return s.maxCapacityGallons - s.currentGallons;
 });
 
 const willExceedCapacity = computed(() => {
-  return refillData.value.amount > freeCapacity.value;
+  return refillData.value.amount > 0 && refillData.value.amount > freeCapacity.value;
 });
 
-// FIX APLICADO: Parseo de número y manejo de errores
-const submitRefill = () => {
+const submitRefill = async () => {
   const amountToAdd = Number(refillData.value.amount);
-  const res = inventoryStore.refillFuel(refillData.value.type, amountToAdd);
+  const res = await inventoryStore.refillFuel(refillData.value.type, amountToAdd);
 
   if (res.success) {
     toast.success('Inventario Actualizado', {
       description: `Se han ingresado ${amountToAdd} gal a ${refillData.value.type}`
     });
-    notificationStore.addNotification('Recepción de Refinería', `Nuevo stock de ${refillData.value.type} registrado en planta.`, 'success');
     closeRefillModal();
   } else {
     toast.error('Error de Operación', {

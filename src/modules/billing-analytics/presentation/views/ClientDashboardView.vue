@@ -193,7 +193,7 @@ const deliveryRate = computed(() => {
 
 // 🚀 FIX BARRAS: Colores hexadecimales seguros y cálculo robusto
 const fuelStats = computed(() => {
-  const types = ['Diesel B5', 'Gasohol 95', 'Gasohol 98'];
+  const types = ['Diesel B5 S-50', 'Gasohol 95 Plus', 'Diésel Marino'];
   const colors = ['#3b82f6', '#10b981', '#f59e0b']; // Azul, Verde, Naranja
 
   // Extrae los datos (Si están vacíos, usa fallback para que la barra se pinte en tu foto)

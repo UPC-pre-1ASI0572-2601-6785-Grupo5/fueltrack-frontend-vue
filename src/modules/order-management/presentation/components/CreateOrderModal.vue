@@ -29,9 +29,9 @@
               <div class="input-icon"><DropletIcon :size="18" /></div>
               <select v-model="form.fuelType" required class="premium-input pl-10">
                 <option value="" disabled>Seleccione el tipo de combustible</option>
-                <option value="Diesel B5">Diesel B5 (Uso general)</option>
-                <option value="Gasohol 95">Gasohol 95 Octanos</option>
-                <option value="Gasohol 98">Gasohol 98 Octanos (Premium)</option>
+                <option value="Diesel B5 S-50">Diesel B5 S-50 (Bajo azufre)</option>
+                <option value="Gasohol 95 Plus">Gasohol 95 Plus</option>
+                <option value="Diésel Marino">Diésel Marino</option>
               </select>
             </div>
           </div>

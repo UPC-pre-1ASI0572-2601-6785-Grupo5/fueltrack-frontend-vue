@@ -86,7 +86,7 @@
             <CreditCardIcon :size="16" class="v-icon text-blue" />
             <div class="v-info">
               <span class="v-lbl">Crédito Libre</span>
-              <span class="v-val">S/ {{ (500000 - analyticsStore.totalSpend).toLocaleString() }}</span>
+              <span class="v-val">S/ {{ analyticsStore.availableCredit.toLocaleString() }}</span>
             </div>
           </div>
           <div class="vital-divider"></div>
@@ -138,7 +138,7 @@
 <script setup>
 import { ref, computed, onMounted } from 'vue';
 import { useOrderStore } from '@/modules/order-management/application/stores/orderStore';
-import { useAnalyticsStore } from '../../application/stores/analyticsStore';
+import { useAnalyticsStore } from '@/modules/billing-analytics/application/stores/analyticsStore';
 import { toast } from 'vue-sonner';
 import {
   DownloadIcon, TrendingUpIcon, ClockIcon, ShieldAlertIcon,
@@ -165,10 +165,9 @@ const isExporting = ref(false);
 
 onMounted(() => {
   orderStore.fetchOrders();
-  analyticsStore.fetchAnalyticsData();
 });
 
-const totalGallons = computed(() => analyticsStore.totalGallons || 18500);
+const totalGallons = computed(() => analyticsStore.totalGallons);
 
 // ==========================================
 // 🚀 CONFIGURACIÓN CORREGIDA DE ECHARTS
@@ -264,8 +263,7 @@ const sedeOption = ref({
   }]
 });
 
-const mixOption = ref({
-  // 🚀 INYECCIÓN GLOBAL
+const mixOption = computed(() => ({
   textStyle: {
     fontFamily: "'SF Pro Text', 'Inter', system-ui, sans-serif",
   },
@@ -276,7 +274,7 @@ const mixOption = ref({
     itemGap: 20,
     textStyle: {
       color: '#475569',
-      fontWeight: 500, // 🚀 Leyenda más sutil
+      fontWeight: 500,
       fontSize: 12
     }
   },
@@ -288,15 +286,19 @@ const mixOption = ref({
       label: {
         show: true,
         fontSize: 22,
-        fontWeight: 800, // 🚀 El número del centro con impacto visual
+        fontWeight: 800,
         color: '#0f172a',
-        formatter: '{c}\n{b}' // Muestra el número y debajo el nombre (ej. "12500\nDiesel B5")
+        formatter: '{c}\n{b}'
       }
     },
     color: ['#2563eb', '#10b981', '#f59e0b'],
-    data: [ { value: 12500, name: 'Diesel B5' }, { value: 4500, name: 'Gasohol 95' }, { value: 1500, name: 'Otros' } ]
+    data: [
+      { value: analyticsStore.consumptionByFuelType[0], name: 'Diesel B5 S-50' },
+      { value: analyticsStore.consumptionByFuelType[1], name: 'Gasohol 95 Plus' },
+      { value: analyticsStore.consumptionByFuelType[2], name: 'Diésel Marino' }
+    ]
   }]
-});
+}));
 
 const exportData = async (format) => {
   isExporting.value = true;

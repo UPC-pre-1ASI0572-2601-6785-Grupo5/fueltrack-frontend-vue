@@ -1,54 +1,34 @@
 import { defineStore } from 'pinia';
+import { computed } from 'vue';
+import { useOrderStore } from '../../../order-management/application/stores/orderStore';
 
-export const useAnalyticsStore = defineStore('analyticsStore', {
-    state: () => ({
-        // ─── MÉTRICAS FINANCIERAS B2B ───
-        totalSpend: 310000,      // Gasto acumulado en Soles (S/)
-        budgetLimit: 500000,     // Línea de crédito mensual
+export const useAnalyticsStore = defineStore('analyticsStore', () => {
+    const orderStore = useOrderStore();
 
-        // ─── MÉTRICAS VOLUMÉTRICAS ───
-        totalGallons: 18500,     // Total de galones despachados
+    const totalGallons = computed(() =>
+        orderStore.orders
+            .filter(o => ['IN_TRANSIT', 'DELIVERED'].includes(o.status))
+            .reduce((acc, o) => acc + o.gallons, 0)
+    );
 
-        // Distribución por tipo de combustible: [Diesel B5, Gasohol 95, Gasohol 98]
-        consumptionByFuelType: [12500, 4500, 1500],
+    const totalSpend = computed(() => totalGallons.value * 18.50);
 
-        isLoading: false,
-        error: null
-    }),
+    const budgetLimit = 500000;
 
-    actions: {
-        // Simulamos una llamada a tu API / Backend (Para la tesis)
-        async fetchAnalyticsData() {
-            this.isLoading = true;
-            try {
-                // Simulamos el retraso de red (800ms)
-                await new Promise(resolve => setTimeout(resolve, 800));
+    const consumptionByFuelType = computed(() => {
+        const types = ['Diesel B5 S-50', 'Gasohol 95 Plus', 'Diésel Marino'];
+        return types.map(type =>
+            orderStore.orders
+                .filter(o => o.fuelType === type)
+                .reduce((acc, o) => acc + o.gallons, 0)
+        );
+    });
 
-                // Aquí en el futuro harías un: const response = await api.get('/analytics')
-                // this.totalSpend = response.data.totalSpend;
+    const creditUsedPercentage = computed(() =>
+        Math.min((totalSpend.value / budgetLimit) * 100, 100)
+    );
 
-            } catch (err) {
-                this.error = 'Error al sincronizar cubos de datos operacionales';
-                console.error(err);
-            } finally {
-                this.isLoading = false;
-            }
-        },
+    const availableCredit = computed(() => budgetLimit - totalSpend.value);
 
-        // Acción para actualizar el gasto en tiempo real cuando se aprueba un pedido
-        addExpense(amount) {
-            this.totalSpend += amount;
-        }
-    },
-
-    getters: {
-        // Calculamos el % de línea de crédito consumida
-        creditUsedPercentage: (state) => {
-            return Math.min((state.totalSpend / state.budgetLimit) * 100, 100);
-        },
-        // Calculamos el saldo disponible
-        availableCredit: (state) => {
-            return state.budgetLimit - state.totalSpend;
-        }
-    }
+    return { totalGallons, totalSpend, budgetLimit, consumptionByFuelType, creditUsedPercentage, availableCredit };
 });
