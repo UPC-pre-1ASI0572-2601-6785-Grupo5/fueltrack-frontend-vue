@@ -25,5 +25,9 @@ export const useAnalyticsStore = defineStore('analytics', () => {
         );
     });
 
-    return { totalGallons, totalSpend, consumptionByFuelType };
+    const budgetLimit = 500000;
+    const availableCredit = computed(() => budgetLimit - totalSpend.value);
+    const creditUsedPercentage = computed(() => Math.min((totalSpend.value / budgetLimit) * 100, 100));
+
+    return { totalGallons, totalSpend, consumptionByFuelType, budgetLimit, availableCredit, creditUsedPercentage };
 });
