@@ -1,12 +1,7 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
-import { MockOrderRepository } from '../../infrastructure/api/MockOrderRepository.js';
-import { Order } from '../../domain/entities/Order.js';
 import { http } from '@/core/api/http.js';
-
 import { useNotificationStore } from './notificationStore.js';
-import { useInventoryStore } from './inventoryStore';
-const repository = new MockOrderRepository();
 
 export const useOrderStore = defineStore('orders', () => {
     const orders = ref([]);
@@ -16,42 +11,28 @@ export const useOrderStore = defineStore('orders', () => {
     const fetchOrders = async () => {
         isLoading.value = true;
         try {
-            orders.value = await repository.getAll();
+            orders.value = await http.get('/api/v1/orders');
         } finally {
             isLoading.value = false;
         }
     };
 
-    // 1. CUANDO SE CREA UN PEDIDO
     const createNewOrder = async (orderData) => {
         isSaving.value = true;
         const notifStore = useNotificationStore();
-
         try {
-            const order = new Order({
-                id: null,
-                fuelType: orderData.fuelType,
-                gallons: orderData.gallons,
-                documentRef: orderData.documentRef
-            });
-
             const response = await http.post('/api/v1/orders', {
-                fuelType: order.fuelType,
-                gallons: Number(order.gallons),
-                documentRef: order.documentRef,
+                fuelType: orderData.fuelType,
+                gallons: Number(orderData.gallons),
+                documentRef: orderData.documentRef,
             });
-
-            order.id = response.id;
-            orders.value.unshift(order);
-
+            orders.value.unshift(response);
             notifStore.addNotification(
                 'Orden Emitida con Éxito',
-                `El pedido #${order.id} por ${order.gallons} galones de ${order.fuelType} ha sido registrado en el sistema.`,
+                `El pedido #${response.id} por ${response.gallons} galones de ${response.fuelType} ha sido registrado.`,
                 'success'
             );
-
             return { success: true };
-
         } catch (error) {
             notifStore.addNotification('Error de Sistema', 'No se pudo emitir la orden.', 'warning');
             return { success: false, message: error.message };
@@ -60,59 +41,30 @@ export const useOrderStore = defineStore('orders', () => {
         }
     };
 
-    // 2. CUANDO EL PROVEEDOR APRUEBA
     const approveOrder = async (orderId) => {
         isSaving.value = true;
         const notifStore = useNotificationStore();
-
         try {
-            await new Promise(resolve => setTimeout(resolve, 800));
-            const orderIndex = orders.value.findIndex(o => o.id === orderId);
-
-            if (orderIndex !== -1) {
-                orders.value[orderIndex].status = 'APPROVED';
-
-                // 🚀 DISPARAMOS LA NOTIFICACIÓN REAL
-                notifStore.addNotification(
-                    'Pedido Aprobado',
-                    `La orden ${orderId} ha sido validada. Lista para asignación de flota.`,
-                    'success'
-                );
-            }
+            const updated = await http.patch(`/api/v1/orders/${orderId}/approve`);
+            const idx = orders.value.findIndex(o => o.id === orderId);
+            if (idx !== -1) orders.value[idx] = updated;
+            notifStore.addNotification('Pedido Aprobado', `La orden ${orderId} ha sido validada. Lista para asignación de flota.`, 'success');
             return { success: true };
         } catch (error) {
-            return { success: false, message: 'Error al aprobar el pedido' };
+            return { success: false, message: error.message || 'Error al aprobar el pedido' };
         } finally {
             isSaving.value = false;
         }
-        const inventory = useInventoryStore();
-        const resDischarge = inventory.dischargeFuel(order.fuelType, order.gallons);
-
-        if (!resDischarge.success) {
-            notifStore.addNotification('Alerta de Stock', resDischarge.message, 'warning');
-            return { success: false };
-        }
     };
 
-    // 3. CUANDO EL PROVEEDOR DESPACHA
     const dispatchOrder = async (orderId, truckId) => {
         isSaving.value = true;
         const notifStore = useNotificationStore();
-
         try {
-            await new Promise(resolve => setTimeout(resolve, 600));
-            const orderIndex = orders.value.findIndex(o => o.id === orderId);
-
-            if (orderIndex !== -1) {
-                orders.value[orderIndex].dispatch(truckId);
-
-                // 🚀 DISPARAMOS LA NOTIFICACIÓN REAL
-                notifStore.addNotification(
-                    'Unidad en Ruta',
-                    `La orden ${orderId} está en camino asignada al vehículo ${truckId}.`,
-                    'info'
-                );
-            }
+            const updated = await http.patch(`/api/v1/orders/${orderId}/dispatch`, { truckId });
+            const idx = orders.value.findIndex(o => o.id === orderId);
+            if (idx !== -1) orders.value[idx] = updated;
+            notifStore.addNotification('Unidad en Ruta', `La orden ${orderId} está en camino asignada al vehículo ${truckId}.`, 'info');
             return { success: true };
         } catch (error) {
             return { success: false, message: error.message };

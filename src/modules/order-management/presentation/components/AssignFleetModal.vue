@@ -47,11 +47,7 @@
                   </div>
                   <div class="truck-details">
                     <h4>{{ truck.name }}</h4>
-                    <span class="plate">{{ truck.id }}</span>
-                  </div>
-                  <div class="truck-capacity">
-                    <span class="cap-value">{{ truck.capacity.toLocaleString() }}</span>
-                    <span class="cap-unit">gal</span>
+                    <span class="plate">{{ truck.status }}</span>
                   </div>
                 </div>
                 <div v-if="selectedTruck === truck.id" class="check-indicator">
@@ -85,10 +81,11 @@
 </template>
 
 <script setup>
-import { ref, onMounted, onUnmounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue';
 import { onClickOutside } from '@vueuse/core';
 import { toast } from 'vue-sonner';
 import { useOrderStore } from '../../application/stores/orderStore';
+import { useFleetStore } from '../../application/stores/fleetStore';
 import {
   XIcon, AlertCircleIcon, Loader2Icon,
   NavigationIcon, TruckIcon, CheckCircle2Icon
@@ -101,16 +98,18 @@ const props = defineProps({
 const emit = defineEmits(['close']);
 
 const orderStore = useOrderStore();
+const fleetStore = useFleetStore();
 const modalRef = ref(null);
 const errorMessage = ref('');
 const selectedTruck = ref('');
 
-// Mock de flota disponible
-const availableFleet = [
-  { id: 'T-047', name: 'Volvo FMX (Cisterna Mayor)', capacity: 5000 },
-  { id: 'T-031', name: 'Scania P360 (Estándar)', capacity: 3000 },
-  { id: 'T-018', name: 'Hino 500 (Distribución local)', capacity: 1500 }
-];
+const availableFleet = computed(() =>
+    fleetStore.vehicles.map(v => ({ id: v.plate, name: v.plate, status: v.status }))
+);
+
+watch(() => props.isOpen, (open) => {
+  if (open) fleetStore.fetchVehicles();
+});
 
 // UX Premium: Click afuera para cerrar
 onClickOutside(modalRef, () => {

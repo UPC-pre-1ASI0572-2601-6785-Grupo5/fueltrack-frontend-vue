@@ -1,34 +1,49 @@
 import { defineStore } from 'pinia';
 import { ref } from 'vue';
+import { http } from '@/core/api/http.js';
 
 export const useInventoryStore = defineStore('inventory', () => {
-    const MAX_CAPACITY = 50000;
+    const stocks = ref([]);
+    const isLoading = ref(false);
 
-    const stocks = ref({
-        'Diesel B5': 42000,
-        'Gasohol 95': 28000,
-        'Gasohol 98': 12000
-    });
-
-    const getPercentage = (type) => (stocks.value[type] / MAX_CAPACITY) * 100;
-
-    const dischargeFuel = (type, amount) => {
-        if (stocks.value[type] >= amount) {
-            stocks.value[type] -= amount;
-            return { success: true };
+    const fetchStocks = async () => {
+        isLoading.value = true;
+        try {
+            stocks.value = await http.get('/api/v1/inventory/stocks');
+        } finally {
+            isLoading.value = false;
         }
-        return { success: false, message: 'Stock insuficiente en tanque' };
     };
 
-// Acción para RECARGAR combustible desde refinería
-    const refillFuel = (type, amount) => {
-        if (stocks.value[type] + amount <= MAX_CAPACITY) {
-            stocks.value[type] += amount;
-            return { success: true };
-        }
-        return { success: false, message: 'La recarga excede la capacidad máxima del tanque' };
+    const getStock = (fuelType) =>
+        stocks.value.find(s => s.fuelType === fuelType) || { currentGallons: 0, maxCapacityGallons: 50000 };
+
+    const getPercentage = (fuelType) => {
+        const s = getStock(fuelType);
+        return s.maxCapacityGallons > 0 ? (s.currentGallons / s.maxCapacityGallons) * 100 : 0;
     };
 
-    // No olvides exportarla al final:
-    return { stocks, MAX_CAPACITY, getPercentage, dischargeFuel, refillFuel };
+    const refillFuel = async (fuelType, gallons) => {
+        try {
+            const updated = await http.post('/api/v1/inventory/refill', { fuelType, gallons });
+            const idx = stocks.value.findIndex(s => s.fuelType === fuelType);
+            if (idx !== -1) stocks.value[idx] = updated;
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    };
+
+    const dischargeFuel = async (fuelType, gallons) => {
+        try {
+            const updated = await http.post('/api/v1/inventory/discharge', { fuelType, gallons });
+            const idx = stocks.value.findIndex(s => s.fuelType === fuelType);
+            if (idx !== -1) stocks.value[idx] = updated;
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        }
+    };
+
+    return { stocks, isLoading, fetchStocks, getStock, getPercentage, refillFuel, dischargeFuel };
 });
