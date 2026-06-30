@@ -12,7 +12,7 @@ const distPath = resolve(__dirname, 'dist');
 app.use(express.static(distPath));
 
 // SPA fallback: any route that doesn't match a static file gets index.html
-app.get('/{*splat}', (_req, res) => {
+app.get('*', (_req, res) => {
   res.sendFile(resolve(distPath, 'index.html'));
 });
 
