@@ -137,7 +137,8 @@ const handleLogin = async () => {
 
   isLoading.value = true;
   try {
-    await authStore.login(email.value, password.value);
+    const formattedEmail = email.value.trim().toLowerCase();
+    await authStore.login(formattedEmail, password.value);
 
     toast.success('Acceso autorizado', {
       description: `Bienvenido al sistema FuelTrack.`
