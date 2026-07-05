@@ -128,9 +128,12 @@
               </button>
             </div>
 
+            <span v-else-if="order.status === 'DELIVERED'" class="status-action-pill waiting-client">
+                <ClockIcon :size="14" class="mr-1"/> Esperando Cliente
+            </span>
             <span v-else class="status-action-pill processed">
                 <CheckCheckIcon :size="14" class="mr-1"/> Procesado
-              </span>
+            </span>
           </td>
         </tr>
         </tbody>
@@ -203,7 +206,7 @@ const filteredOrders = computed(() => {
 });
 
 const formatStatus = (status) => {
-  const map = { 'PENDING_APPROVAL': 'Validación Pendiente', 'APPROVED': 'Listo p/ Despacho', 'IN_TRANSIT': 'En Ruta', 'DELIVERED': 'Entregado' };
+  const map = { 'PENDING_APPROVAL': 'Validación Pendiente', 'APPROVED': 'Listo p/ Despacho', 'IN_TRANSIT': 'En Ruta', 'DELIVERED': 'Esperando Conf. del Cliente' };
   return map[status] || status;
 };
 
@@ -355,6 +358,7 @@ onUnmounted(() => {
 
 .status-action-pill { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
 .status-action-pill.in-transit { background: #F3F4F6; color: #4B5563; }
+.status-action-pill.waiting-client { background: #FFFBEB; color: #D97706; border: 1px dashed #FCD34D; }
 .status-action-pill.processed { background: #F8FAFC; color: #94A3B8; border: 1px dashed #CBD5E1; }
 
 .empty-state { text-align: center; padding: 60px 20px !important; color: var(--text-muted); }
