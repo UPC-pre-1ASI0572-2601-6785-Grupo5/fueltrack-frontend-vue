@@ -25,7 +25,7 @@
             <div class="input-wrapper">
               <MailIcon :size="18" class="input-icon" />
               <input
-                  type="email"
+                  type="text"
                   id="email"
                   v-model="email"
                   placeholder="usuario@empresa.com"
