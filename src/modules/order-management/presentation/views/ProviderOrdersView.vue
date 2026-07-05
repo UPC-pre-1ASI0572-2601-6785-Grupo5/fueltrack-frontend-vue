@@ -109,6 +109,7 @@
 
             <div v-else-if="order.status === 'IN_TRANSIT'" class="flex-actions">
               <button
+                  v-if="!isAccelerated(order.id)"
                   class="btn-action btn-accelerate"
                   @click="accelerateRoute(order.id)"
                   :disabled="orderStore.isSaving"
@@ -117,6 +118,7 @@
                 Acelerar
               </button>
               <button
+                  v-if="isAccelerated(order.id)"
                   class="btn-action btn-approve"
                   @click="markAsDelivered(order.id)"
                   :disabled="orderStore.isSaving"
@@ -185,6 +187,7 @@ const isModalOpen = ref(false);
 const selectedOrderId = ref('');
 const searchQuery = ref('');
 const statusFilter = ref('ALL');
+const acceleratedOrders = ref(new Set(JSON.parse(localStorage.getItem('accelerated_orders') || '[]')));
 
 // Estados del Modal de Confirmación
 const showConfirmModal = ref(false);
@@ -247,9 +250,15 @@ const openFleetModal = (orderId) => {
 };
 
 const accelerateRoute = (orderId) => {
+  acceleratedOrders.value.add(orderId);
+  localStorage.setItem('accelerated_orders', JSON.stringify([...acceleratedOrders.value]));
   toast.success(`Ruta acelerada para el pedido ${orderId}. Recalculando ETA...`, {
     icon: '⚡'
   });
+};
+
+const isAccelerated = (orderId) => {
+  return acceleratedOrders.value.has(orderId);
 };
 
 const markAsDelivered = async (orderId) => {
