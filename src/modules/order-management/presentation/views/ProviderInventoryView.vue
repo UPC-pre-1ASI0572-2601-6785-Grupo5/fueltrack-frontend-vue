@@ -275,4 +275,17 @@ const submitRefill = async () => {
 
 @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
 @keyframes slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .tanks-grid { grid-template-columns: 1fr 1fr; }
+}
+
+@media (max-width: 768px) {
+  .header-section { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .btn-primary { width: 100%; justify-content: center; }
+  .tanks-grid { grid-template-columns: 1fr; }
+  .modal-footer { flex-direction: column; }
+  .modal-footer button { width: 100%; }
+}
 </style>

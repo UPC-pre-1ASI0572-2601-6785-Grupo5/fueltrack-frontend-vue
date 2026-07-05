@@ -407,9 +407,21 @@ const exportData = async (format) => {
 @media (max-width: 1024px) {
   .analytics-dashboard { height: auto; overflow: visible; }
   .main-content-grid { grid-template-columns: 1fr; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
   .finance-chart-wrapper { min-height: 300px; }
   .financial-vital-stats { grid-template-columns: 1fr; gap: 10px; padding: 20px;}
   .vital-divider { display: none; }
   .vital-item { justify-content: flex-start; }
+}
+
+@media (max-width: 768px) {
+  .header-section { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .header-actions { width: 100%; flex-direction: column; gap: 8px; }
+  .liquid-btn { width: 100%; justify-content: center; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .finance-top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .finance-horizontal-metrics { width: 100%; flex-direction: column; }
+  .metric-pill { width: 100%; justify-content: flex-start; }
+  .elastic-container { min-height: 250px; }
 }
 </style>

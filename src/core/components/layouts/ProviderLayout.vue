@@ -1,5 +1,7 @@
 <template>
   <div class="app-wrapper">
+    <!-- Mobile Overlay -->
+    <div v-if="isMobileMenuOpen" class="mobile-overlay" @click="isMobileMenuOpen = false"></div>
 
     <aside :class="['sidebar-glass', { 'sidebar-open': isMobileMenuOpen }]">
       <div class="brand-section">
@@ -348,23 +350,51 @@ const handleLogout = () => {
 .fade-page-leave-to { opacity: 0; transform: translateY(-15px); }
 
 /* ─── MÓVIL ────────────────────────────────────────────────── */
+.mobile-overlay {
+  display: none;
+}
+
 @media (max-width: 1024px) {
-  .app-wrapper { padding: 12px; flex-direction: column; overflow: auto; gap: 12px; }
+  .app-wrapper { padding: 0; flex-direction: column; overflow: hidden; }
+  
+  .mobile-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 40;
+  }
+  
   .sidebar-glass {
-    position: fixed; top: 12px; left: 12px; bottom: 12px;
-    transform: translateX(-120%); z-index: 50;
-    border-radius: 32px;
+    position: fixed; top: 0; left: 0; bottom: 0;
+    transform: translateX(-100%); z-index: 50;
+    border-radius: 0 24px 24px 0;
     border-right: 1px solid rgba(255, 255, 255, 0.1);
+    background: rgba(3, 33, 27, 0.95);
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
   .sidebar-glass.sidebar-open { transform: translateX(0); }
-  .main-panel { border-radius: 24px; min-height: 100vh; z-index: 1; }
-  .btn-hamburger { display: block; }
+  
+  .main-panel { border-radius: 0; z-index: 1; height: 100vh; overflow-y: auto; }
+  
+  .topbar { padding: 0 16px; height: 64px; }
+  .breadcrumbs { display: none; }
+  .user-greeting { display: none; }
+  
+  .btn-hamburger { display: block; margin-right: 12px; }
   .btn-close-mobile { display: block; }
+  
+  .page-content { padding: 16px; }
+  
   .nav-item.active {
     border-radius: 20px;
     margin-right: 0;
     padding-right: 18px;
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
   }
+  .nav-item.active .nav-icon { color: #10B981; }
   .nav-item.active::before,
   .nav-item.active::after { display: none; }
 }

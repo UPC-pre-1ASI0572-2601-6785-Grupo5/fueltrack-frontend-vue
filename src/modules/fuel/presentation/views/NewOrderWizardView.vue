@@ -396,4 +396,13 @@ input:focus, select:focus { border-color: #3b82f6 !important; background: white 
   .stepper-panel { display: none; }
   .internal-scroll { overflow: visible; }
 }
+
+@media (max-width: 768px) {
+  .dashboard-top { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .header-actions { width: 100%; flex-direction: column; gap: 8px; }
+  .liquid-btn { width: 100%; justify-content: center; }
+  .fuel-grid { grid-template-columns: 1fr; }
+  .form-grid { grid-template-columns: 1fr; gap: 16px; }
+  .form-actions { flex-direction: column-reverse; gap: 12px; }
+}
 </style>

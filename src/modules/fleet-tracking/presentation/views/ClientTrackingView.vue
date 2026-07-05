@@ -335,4 +335,12 @@ onUnmounted(() => {
 .slide-down-enter-from, .slide-down-leave-to { opacity: 0; transform: translateY(-30px) translateX(-50%); }
 .fade-up-enter-active, .fade-up-leave-active { transition: all 0.3s ease; }
 .fade-up-enter-from, .fade-up-leave-to { opacity: 0; transform: translateY(10px); }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .floating-hud { width: calc(100% - 48px); bottom: 24px; top: auto; z-index: 1000; }
+  .floating-top-right { flex-direction: column; right: 16px; top: 16px; z-index: 1001; }
+  .global-alert-banner { top: 80px; }
+  .alert-glass-pill { flex-direction: column; text-align: center; padding: 10px; }
+}
 </style>

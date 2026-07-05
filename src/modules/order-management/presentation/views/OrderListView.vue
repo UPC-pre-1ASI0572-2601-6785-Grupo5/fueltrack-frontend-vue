@@ -391,6 +391,17 @@ onMounted(() => orderStore.fetchOrders());
 @media (max-width: 1024px) {
   .main-split-layout { flex-direction: column; }
   .detail-panel-wrapper { width: 100%; margin-left: 0; margin-top: 20px;}
-  .detail-panel { width: 100%; }
+  .detail-panel { width: 100%; border-left: none; border-top: 2px solid #e2e8f0; }
+}
+
+@media (max-width: 768px) {
+  .dashboard-top { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .header-actions { width: 100%; flex-direction: column; gap: 8px; }
+  .toolbar-bento { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .search-box { width: 100%; }
+  .filter-tabs { width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; }
+  .table-scroll-wrapper { overflow-x: auto; }
+  .liquid-table { min-width: 650px; }
+  .qb-row { flex-direction: column; gap: 4px; }
 }
 </style>

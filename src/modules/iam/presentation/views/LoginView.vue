@@ -320,7 +320,8 @@ const handleLogin = async () => {
 /* --- RESPONSIVE --- */
 @media (max-width: 1024px) {
   .visual-side { display: none; } /* Ocultamos la imagen en tablets y celulares */
-  .login-side { background-color: #F9FAFB; }
+  .login-side { background-color: #F9FAFB; padding: 24px; }
+  .login-content { max-width: 100%; }
 }
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }

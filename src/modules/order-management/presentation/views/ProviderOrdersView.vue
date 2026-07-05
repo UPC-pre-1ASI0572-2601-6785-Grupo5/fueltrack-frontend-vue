@@ -353,4 +353,15 @@ onMounted(() => orderStore.fetchOrders());
 
 @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .toolbar { flex-direction: column; align-items: stretch; gap: 12px; }
+  .search-box { width: 100%; }
+  .filter-tabs { width: 100%; overflow-x: auto; white-space: nowrap; padding-bottom: 4px; }
+  .table-container { overflow-x: auto; }
+  .premium-table { min-width: 800px; }
+  .flex-actions { flex-direction: column; align-items: stretch; }
+  .btn-action { width: 100%; justify-content: center; }
+}
 </style>

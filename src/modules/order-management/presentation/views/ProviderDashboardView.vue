@@ -598,4 +598,23 @@ onUnmounted(() => { if (simInterval) clearInterval(simInterval); });
 
 @keyframes pulse { 0% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(1.2); } 100% { opacity: 1; transform: scale(1); } }
 @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 1024px) {
+  .provider-dashboard { height: auto; overflow: visible; }
+  .kpi-grid { grid-template-columns: 1fr 1fr; }
+  .main-content-grid { grid-template-columns: 1fr; }
+  .side-column { min-height: auto; }
+}
+
+@media (max-width: 768px) {
+  .header-section { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .header-actions { width: 100%; flex-wrap: wrap; }
+  .kpi-grid { grid-template-columns: 1fr; }
+  .iot-top-bar { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .iot-horizontal-metrics { width: 100%; flex-direction: column; }
+  .metric-pill { width: 100%; justify-content: center; }
+  .vehicle-vital-stats { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .vital-divider { display: none; }
+}
 </style>

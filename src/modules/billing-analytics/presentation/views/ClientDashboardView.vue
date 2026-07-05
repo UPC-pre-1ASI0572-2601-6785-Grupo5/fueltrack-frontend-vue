@@ -415,4 +415,15 @@ const goToTracking = (orderId) => {
   .kpi-row { grid-template-columns: 1fr 1fr; }
   .internal-scroll { overflow: visible; }
 }
+
+@media (max-width: 768px) {
+  .dashboard-top { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .header-actions { width: 100%; flex-direction: column; gap: 8px; }
+  .liquid-btn { width: 100%; justify-content: center; }
+  .kpi-row { grid-template-columns: 1fr; }
+  .liquid-item { flex-direction: column; align-items: flex-start; gap: 16px; }
+  .fleet-right { width: 100%; justify-content: space-between; }
+  .card-header { flex-direction: column; gap: 12px; }
+  .header-badges { width: 100%; justify-content: flex-start; flex-wrap: wrap; }
+}
 </style>
