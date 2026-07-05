@@ -252,12 +252,24 @@ const openFleetModal = (orderId) => {
   isModalOpen.value = true;
 };
 
-const accelerateRoute = (orderId) => {
-  acceleratedOrders.value.add(orderId);
-  localStorage.setItem('accelerated_orders', JSON.stringify([...acceleratedOrders.value]));
-  toast.success(`Ruta acelerada para el pedido ${orderId}. Recalculando ETA...`, {
-    icon: '⚡'
-  });
+const accelerateRoute = async (orderId) => {
+  toast.promise(
+      new Promise(async (resolve, reject) => {
+        const result = await orderStore.accelerateOrder(orderId);
+        if(result.success) {
+          acceleratedOrders.value.add(orderId);
+          localStorage.setItem('accelerated_orders', JSON.stringify([...acceleratedOrders.value]));
+          resolve(result);
+        } else {
+          reject(new Error(result.message));
+        }
+      }),
+      {
+        loading: 'Acelerando ruta...',
+        success: `Ruta acelerada para el pedido ${orderId}.`,
+        error: 'Error al acelerar la ruta.'
+      }
+  );
 };
 
 const isArrived = (order) => {

@@ -89,5 +89,19 @@ export const useOrderStore = defineStore('orders', () => {
         }
     };
 
-    return { orders, isLoading, isSaving, fetchOrders, createNewOrder, approveOrder, dispatchOrder, markAsDelivered };
+    const accelerateOrder = async (orderId) => {
+        isSaving.value = true;
+        try {
+            const updated = await http.patch(`/api/v1/orders/${orderId}/accelerate`);
+            const idx = orders.value.findIndex(o => o.id === orderId);
+            if (idx !== -1) orders.value[idx] = updated;
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        } finally {
+            isSaving.value = false;
+        }
+    };
+
+    return { orders, isLoading, isSaving, fetchOrders, createNewOrder, approveOrder, dispatchOrder, markAsDelivered, accelerateOrder };
 });
