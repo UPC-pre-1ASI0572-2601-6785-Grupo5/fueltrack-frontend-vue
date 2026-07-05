@@ -73,5 +73,21 @@ export const useOrderStore = defineStore('orders', () => {
         }
     };
 
-    return { orders, isLoading, isSaving, fetchOrders, createNewOrder, approveOrder, dispatchOrder };
+    const markAsDelivered = async (orderId) => {
+        isSaving.value = true;
+        const notifStore = useNotificationStore();
+        try {
+            const updated = await http.patch(`/api/v1/orders/${orderId}/deliver`);
+            const idx = orders.value.findIndex(o => o.id === orderId);
+            if (idx !== -1) orders.value[idx] = updated;
+            notifStore.addNotification('Pedido en Destino', `La orden ${orderId} ha llegado a su destino exitosamente.`, 'success');
+            return { success: true };
+        } catch (error) {
+            return { success: false, message: error.message };
+        } finally {
+            isSaving.value = false;
+        }
+    };
+
+    return { orders, isLoading, isSaving, fetchOrders, createNewOrder, approveOrder, dispatchOrder, markAsDelivered };
 });

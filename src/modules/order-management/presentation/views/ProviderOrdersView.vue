@@ -107,9 +107,24 @@
               Asignar Cisterna
             </button>
 
-            <span v-else-if="order.status === 'IN_TRANSIT'" class="status-action-pill in-transit">
-                <NavigationIcon :size="14" class="mr-1"/> En Tránsito
-              </span>
+            <div v-else-if="order.status === 'IN_TRANSIT'" class="flex-actions">
+              <button
+                  class="btn-action btn-accelerate"
+                  @click="accelerateRoute(order.id)"
+                  :disabled="orderStore.isSaving"
+              >
+                <FastForwardIcon :size="16" />
+                Acelerar
+              </button>
+              <button
+                  class="btn-action btn-approve"
+                  @click="markAsDelivered(order.id)"
+                  :disabled="orderStore.isSaving"
+              >
+                <MapPinIcon :size="16" />
+                Llegó al Destino
+              </button>
+            </div>
 
             <span v-else class="status-action-pill processed">
                 <CheckCheckIcon :size="14" class="mr-1"/> Procesado
@@ -160,7 +175,7 @@ import {
   SearchIcon, DropletIcon, FileTextIcon,
   ClockIcon, TruckIcon, CheckCircleIcon,
   InboxIcon, Loader2Icon, ShieldAlertIcon,
-  NavigationIcon, CheckCheckIcon
+  NavigationIcon, CheckCheckIcon, FastForwardIcon, MapPinIcon
 } from 'lucide-vue-next';
 
 const orderStore = useOrderStore();
@@ -231,6 +246,27 @@ const openFleetModal = (orderId) => {
   isModalOpen.value = true;
 };
 
+const accelerateRoute = (orderId) => {
+  toast.success(`Ruta acelerada para el pedido ${orderId}. Recalculando ETA...`, {
+    icon: '⚡'
+  });
+};
+
+const markAsDelivered = async (orderId) => {
+  toast.promise(
+      new Promise(async (resolve, reject) => {
+        const result = await orderStore.markAsDelivered(orderId);
+        if(result.success) resolve(result);
+        else reject(new Error(result.message));
+      }),
+      {
+        loading: 'Registrando llegada...',
+        success: `El pedido ${orderId} ha sido registrado como ENTREGADO.`,
+        error: 'Error al registrar llegada.'
+      }
+  );
+};
+
 onMounted(() => orderStore.fetchOrders());
 </script>
 
@@ -285,7 +321,10 @@ onMounted(() => orderStore.fetchOrders());
 .btn-action { display: flex; align-items: center; gap: 6px; border: none; padding: 8px 14px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; color: white; box-shadow: 0 1px 2px rgba(0,0,0,0.05); }
 .btn-approve { background: #059669; } .btn-approve:hover:not(:disabled) { background: #047857; transform: translateY(-1px); }
 .btn-dispatch { background: #EA580C; } .btn-dispatch:hover:not(:disabled) { background: #C2410C; transform: translateY(-1px); }
+.btn-accelerate { background: #2563EB; } .btn-accelerate:hover:not(:disabled) { background: #1D4ED8; transform: translateY(-1px); }
 .btn-action:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.flex-actions { display: flex; gap: 8px; justify-content: flex-end; align-items: center; }
 
 .status-action-pill { display: inline-flex; align-items: center; padding: 6px 12px; border-radius: 8px; font-size: 12px; font-weight: 600; }
 .status-action-pill.in-transit { background: #F3F4F6; color: #4B5563; }
