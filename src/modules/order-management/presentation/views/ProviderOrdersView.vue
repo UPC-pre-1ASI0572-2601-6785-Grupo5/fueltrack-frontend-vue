@@ -109,7 +109,7 @@
 
             <div v-else-if="order.status === 'IN_TRANSIT'" class="flex-actions">
               <button
-                  v-if="!isAccelerated(order.id)"
+                  v-if="!isArrived(order)"
                   class="btn-action btn-accelerate"
                   @click="accelerateRoute(order.id)"
                   :disabled="orderStore.isSaving"
@@ -118,7 +118,7 @@
                 Acelerar
               </button>
               <button
-                  v-if="isAccelerated(order.id)"
+                  v-if="isArrived(order)"
                   class="btn-action btn-approve"
                   @click="markAsDelivered(order.id)"
                   :disabled="orderStore.isSaving"
@@ -169,7 +169,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 import { toast } from 'vue-sonner';
 import { useOrderStore } from '../../application/stores/orderStore';
 import AssignFleetModal from '../components/AssignFleetModal.vue';
@@ -257,8 +257,14 @@ const accelerateRoute = (orderId) => {
   });
 };
 
-const isAccelerated = (orderId) => {
-  return acceleratedOrders.value.has(orderId);
+const isArrived = (order) => {
+  if (acceleratedOrders.value.has(order.id)) return true;
+  if (!order.dispatchedAt || !order.etaMinutes) return false;
+  
+  const dispatchedTime = new Date(order.dispatchedAt).getTime();
+  const elapsedMinutes = (nowTime.value - dispatchedTime) / 60000;
+  
+  return elapsedMinutes >= order.etaMinutes;
 };
 
 const markAsDelivered = async (orderId) => {
@@ -276,7 +282,19 @@ const markAsDelivered = async (orderId) => {
   );
 };
 
-onMounted(() => orderStore.fetchOrders());
+const nowTime = ref(Date.now());
+let timer = null;
+
+onMounted(() => {
+  orderStore.fetchOrders();
+  timer = setInterval(() => {
+    nowTime.value = Date.now();
+  }, 5000);
+});
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer);
+});
 </script>
 
 <style scoped>
